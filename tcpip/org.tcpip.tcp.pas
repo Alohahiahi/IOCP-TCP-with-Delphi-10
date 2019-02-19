@@ -52,6 +52,7 @@ uses
   org.algorithms.heap,
   org.algorithms.queue,
   org.algorithms.time, // dxm 2018.12.17
+  org.algorithms.crc,
   org.utilities,
   org.utilities.buffer,
   org.utilities.iocp;
@@ -64,8 +65,8 @@ type
     Options: DWORD;
     Length: Int64;
     LengthEx: Int64;
-//    CRC16: Word;
-//    R2: array [0..1] of Byte;
+    R2: array [0..5] of Byte;
+    CRC16: Word;
   end;
 
   TTCPServiceStatus = (tssNone, tssStarting, tssRunning, tssStopping, tssStoped);
@@ -155,6 +156,7 @@ type
     FBodyExUnfilledLength: Int64;
     FBodyExToBeDeleted: Boolean;
     //\\
+    FCrc16: TCrc16;
     function HasError(IOStatus: Int64): Boolean; virtual;
     function HasReadIO(IOStatus: Int64): Boolean; virtual;
     function HasWriteIO(IOStatus: Int64): Boolean; virtual;
@@ -873,12 +875,14 @@ begin
   FBodyFileName := '';
   FBodyFileHandle := INVALID_HANDLE_VALUE;
   FBodyUnfilledLength := 0;
-  //
+  //\\
   FBodyExInFile := False;
   FBodyExFileName := '';
   FBodyExFileHandle := INVALID_HANDLE_VALUE;
   FBodyExUnfilledLength := 0;
   FBodyExToBeDeleted := False;
+  //\\
+  FCrc16 := TCrc16.Create();
 end;
 
 destructor TTCPIOContext.Destroy;
@@ -886,6 +890,7 @@ begin
   FOutstandingIOs.Free();
   FSendBuffers.Free();
   FreeMem(FHead, FHeadSize);
+  FCrc16.Free();
   inherited;
 end;
 
@@ -1122,8 +1127,12 @@ begin
   pHead^.R1[1] := 89; // Y
   pHead^.R1[2] := 70; // F
 
-//  pHead^.R2[0] := 90; // Z
-//  pHead^.R2[1] := 81; // Q
+  pHead^.R2[0] := 90; // Z
+  pHead^.R2[1] := 81; // Q
+
+//         Crc16 := FCrc16.Compute(FHead, SizeOf(TTCPSocketProtocolHead) - SizeOf(Word), FCrc16.Init);
+  pHead^.CRC16 := FCrc16.Compute(pHead, SizeOf(TTCPSocketProtocolHead) - SizeOf(Word), FCrc16.Init);
+  pHead^.CRC16 := pHead^.CRC16 xor FCrc16.XorOut;
 end;
 
 procedure TTCPIOContext.GetBodyExFileHandle;
@@ -1305,6 +1314,8 @@ var
   Length: DWORD;
   Unfilled: DWORD;
   ErrDesc: string;
+
+  Crc16: Word;
 begin
   // 初始化Protocol结构体
   Unfilled := FHeadSize;
@@ -1351,9 +1362,9 @@ begin
 
   if (FHead^.R1[0] <> 68) or
      (FHead^.R1[1] <> 89) or
-     (FHead^.R1[2] <> 70) {or
+     (FHead^.R1[2] <> 70) or
      (FHead^.R2[0] <> 90) or
-     (FHead^.R2[1] <> 81)} then
+     (FHead^.R2[1] <> 81) then
   begin
     ErrDesc := Format('[%d][%d]<%s.ParseProtocol> 客户端不匹配, [%s:%d]',
       [ FSocket,
@@ -1361,6 +1372,21 @@ begin
         ClassName,
         FRemoteIP,
         FRemotePort]);
+    FOwner.WriteLog(llError, ErrDesc);
+    Set80000000Error();
+  end;
+
+  Crc16 := FCrc16.Compute(FHead, SizeOf(TTCPSocketProtocolHead) - SizeOf(Word), FCrc16.Init);
+  Crc16 := Crc16 xor FCrc16.XorOut;
+  if Crc16 <> FHead^.CRC16 then begin
+    ErrDesc := Format('[%d][%d]<%s.ParseProtocol> Crc16不匹配, [%s:%d], [%d~%d]',
+      [ FSocket,
+        GetCurrentThreadId(),
+        ClassName,
+        FRemoteIP,
+        FRemotePort,
+        FHead^.CRC16,
+        Crc16]);
     FOwner.WriteLog(llError, ErrDesc);
     Set80000000Error();
   end;

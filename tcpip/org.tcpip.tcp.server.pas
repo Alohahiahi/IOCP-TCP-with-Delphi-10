@@ -15,7 +15,7 @@ uses
   Winapi.Winsock2,
   System.SysUtils,
   AnsiStrings,
-  System.JSON,
+//  System.JSON,
   System.Classes,
   System.Math,
   org.algorithms,
