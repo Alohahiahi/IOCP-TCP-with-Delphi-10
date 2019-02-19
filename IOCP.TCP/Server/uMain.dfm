@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 263
+  ClientHeight = 243
   ClientWidth = 907
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,17 +20,16 @@ object Form1: TForm1
     Left = 185
     Top = 0
     Width = 0
-    Height = 244
+    Height = 224
     ExplicitHeight = 202
   end
   object Panel1: TPanel
     Left = 0
     Top = 0
     Width = 185
-    Height = 244
+    Height = 224
     Align = alLeft
     TabOrder = 0
-    ExplicitHeight = 214
     object btnStart: TButton
       Left = 3
       Top = 192
@@ -115,26 +114,24 @@ object Form1: TForm1
     Left = 185
     Top = 0
     Width = 722
-    Height = 244
+    Height = 224
     Align = alClient
     TabOrder = 1
-    ExplicitHeight = 214
     object Memo1: TMemo
       Left = 1
       Top = 1
       Width = 720
-      Height = 242
+      Height = 222
       Align = alClient
       Lines.Strings = (
         'Memo1')
       ScrollBars = ssVertical
       TabOrder = 0
-      ExplicitHeight = 212
     end
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 244
+    Top = 224
     Width = 907
     Height = 19
     Panels = <
@@ -154,7 +151,6 @@ object Form1: TForm1
         Text = '0'
         Width = 50
       end>
-    ExplicitTop = 214
   end
   object MainMenu1: TMainMenu
     Left = 800

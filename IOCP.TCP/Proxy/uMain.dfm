@@ -2,7 +2,7 @@ object Form3: TForm3
   Left = 0
   Top = 0
   Caption = 'Form3'
-  ClientHeight = 250
+  ClientHeight = 256
   ClientWidth = 869
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -19,9 +19,10 @@ object Form3: TForm3
     Left = 0
     Top = 0
     Width = 297
-    Height = 250
+    Height = 256
     Align = alLeft
     TabOrder = 0
+    ExplicitHeight = 230
     object btnStart: TButton
       Left = 24
       Top = 183
@@ -133,14 +134,15 @@ object Form3: TForm3
     Left = 297
     Top = 0
     Width = 572
-    Height = 250
+    Height = 256
     Align = alClient
     Caption = 'Panel2'
     TabOrder = 1
+    ExplicitHeight = 230
     object Splitter1: TSplitter
       Left = 1
       Top = 1
-      Height = 248
+      Height = 254
       ExplicitLeft = 240
       ExplicitTop = 136
       ExplicitHeight = 100
@@ -149,12 +151,13 @@ object Form3: TForm3
       Left = 4
       Top = 1
       Width = 567
-      Height = 248
+      Height = 254
       Align = alClient
       Lines.Strings = (
         'Memo1')
       ScrollBars = ssVertical
       TabOrder = 0
+      ExplicitHeight = 228
     end
   end
   object MainMenu1: TMainMenu
